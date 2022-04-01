@@ -6,6 +6,15 @@
              Title="Contacto Detalle"
              BackgroundColor="White"
              x:Class="AppContactos.Views.ContactoDetalle">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem
+            IconImageSource="{Binding BindingContext.icono, Source={x:Reference thisContactoDetalle}}"
+            Command="{Binding BindingContext.cmdContactoMarcarFavorito, Source={x:Reference thisContactoDetalle}}"
+            CommandParameter="{Binding BindingContext.Contacto, Source={x:Reference thisContactoDetalle}}"
+            Order="Primary"
+            Priority="0" 
+        />
+    </ContentPage.ToolbarItems>
     <ContentPage.Content>
         <Grid RowDefinitions="*,auto">
             <ScrollView Grid.Row="0">

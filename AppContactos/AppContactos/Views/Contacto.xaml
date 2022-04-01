@@ -3,9 +3,73 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:model="clr-namespace:AppContactos.Models"
              xmlns:vm="clr-namespace:AppContactos.ViewModel"
+             xmlns:tempsel="clr-namespace:AppContactos"
+             BackgroundColor="White"
              x:Name="thisContacto"
              Title="Contactos"
              x:Class="AppContactos.Views.Contacto">
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Favoritos"
+                 Order="Primary"
+                 Command="{Binding BindingContext.cmdContactoVerFavoritos, Source={x:Reference thisContacto}}"
+                 Priority="0" />
+    </ContentPage.ToolbarItems>
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <DataTemplate x:Key="ContactoNormalTemplate">
+                <Grid RowDefinitions="auto,auto,auto" ColumnDefinitions="*" Margin="0,0,0,20">
+                    <Label Grid.Row="0">
+                        <Label.FormattedText >
+                            <FormattedString>
+                                <Span Text="{Binding Nombre}" FontSize="Subtitle" FontAttributes="Bold" />
+                                <Span Text=" " />
+                                <Span Text="{Binding ApellidoPaterno}" FontSize="Subtitle" FontAttributes="Bold" />
+                                <Span Text=" " />
+                                <Span Text="{Binding ApellidoMaterno}" FontSize="Subtitle" FontAttributes="Bold" />
+                            </FormattedString>
+                        </Label.FormattedText>
+                    </Label>
+                    <Label Grid.Row="1" Text="{Binding Organizacion}" FontSize="Small" TextColor="Gray" />
+                    <StackLayout Grid.Row="0" Grid.RowSpan="3">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding BindingContext.cmdContactoDetalle, Source={x:Reference thisContacto}}"
+                                CommandParameter="{Binding .}" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+                </Grid>
+            </DataTemplate>
+
+            <DataTemplate x:Key="ContactoFavoritoTemplate">
+                <Grid RowDefinitions="auto,auto,auto" ColumnDefinitions="*" Margin="0,0,0,20">
+                    <StackLayout Grid.Row="0" Orientation="Horizontal">
+                        <Label>
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{Binding Nombre}" FontSize="Subtitle" FontAttributes="Bold" />
+                                    <Span Text=" " />
+                                    <Span Text="{Binding ApellidoPaterno}" FontSize="Subtitle" FontAttributes="Bold" />
+                                    <Span Text=" " />
+                                    <Span Text="{Binding ApellidoMaterno}" FontSize="Subtitle" FontAttributes="Bold" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
+                        <Image Source="StarFilled.png" WidthRequest="20" HorizontalOptions="EndAndExpand" />
+                    </StackLayout>
+                    <Label Grid.Row="1" Text="{Binding Organizacion}" FontSize="Small" TextColor="Gray" />
+                    <StackLayout Grid.Row="0" Grid.RowSpan="3">
+                        <StackLayout.GestureRecognizers>
+                            <TapGestureRecognizer 
+                                Command="{Binding BindingContext.cmdContactoDetalle, Source={x:Reference thisContacto}}"
+                                CommandParameter="{Binding .}" />
+                        </StackLayout.GestureRecognizers>
+                    </StackLayout>
+                </Grid>
+            </DataTemplate>
+
+            <tempsel:ContactoFavoritoDataTemplateSelector x:Key="templateSelector" ContactoNormalTemplate="{StaticResource ContactoNormalTemplate}" ContactoFavoritoTemplate="{StaticResource ContactoFavoritoTemplate}" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
     <ContentPage.BindingContext>
         <vm:ContactoViewModel />
     </ContentPage.BindingContext>
@@ -13,32 +77,9 @@
         <Grid RowDefinitions="*">
             <ScrollView Grid.Row="0" BackgroundColor="White" Margin="10">
                 <StackLayout Grid.Row="0" VerticalOptions="FillAndExpand">
-                    <CollectionView ItemsSource="{Binding BindingContext.Contactos, Source={x:Reference thisContacto}}">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate x:DataType="model:Contacto">
-                                <Grid RowDefinitions="auto,auto,auto" ColumnDefinitions="*">
-                                    <Label Grid.Row="0">
-                                        <Label.FormattedText>
-                                            <FormattedString>
-                                                <Span Text="{Binding Nombre}" FontAttributes="Bold" />
-                                                <Span Text=" " />
-                                                <Span Text="{Binding ApellidoPaterno}" />
-                                                <Span Text=" " />
-                                                <Span Text="{Binding ApellidoMaterno}" />
-                                            </FormattedString>
-                                        </Label.FormattedText>
-                                    </Label>
-                                    <Label Grid.Row="1" Text="{Binding Organizacion}" FontSize="Micro" TextColor="Gray" />
-                                    <BoxView Grid.Row="2" BackgroundColor="Black" HeightRequest="1" />
-                                    <StackLayout Grid.Row="0" Grid.RowSpan="3">
-                                        <StackLayout.GestureRecognizers>
-                                            <TapGestureRecognizer Command="{Binding BindingContext.cmdContactoDetalle, Source={x:Reference thisContacto}}"
-                                                                  CommandParameter="{Binding .}" />
-                                        </StackLayout.GestureRecognizers>
-                                    </StackLayout>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
+                    <CollectionView 
+                        ItemsSource="{Binding BindingContext.Contactos, Source={x:Reference thisContacto}}"
+                        ItemTemplate="{StaticResource templateSelector}">
                     </CollectionView>
                 </StackLayout>
             </ScrollView>

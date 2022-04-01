@@ -21,6 +21,10 @@ namespace AppContactos.ViewModel
             get { return contacto; }
             set { contacto = value; OnPropertyChanged(); }
         }
+        public string icono {
+            get { return icono;  }
+            set { icono = value; OnPropertyChanged(); }
+        }
         #endregion
 
         #region Comandos
@@ -30,6 +34,10 @@ namespace AppContactos.ViewModel
         public ICommand cmdContactoEditar { get; set; }
         public ICommand cmdContactoCancelar { get; set; }
         public ICommand cmdContactoGrabar { get; set;}  
+        public ICommand cmdContactoAgregaTelefono { get; set; }
+        public ICommand cmdContactoEliminaTelefono { get; set; }
+        public ICommand cmdContactoMarcarFavorito { get; set; }
+        public ICommand cmdContactoVerFavoritos { get; set; }
         #endregion
 
         public ContactoViewModel()
@@ -42,6 +50,7 @@ namespace AppContactos.ViewModel
                 ApellidoPaterno = "Aguirre",
                 ApellidoMaterno = "Garcia",
                 Organizacion = "Facultad de Telematica",
+                Favorito = true,
                 Telefonos = new ObservableCollection<Telefono>() {
                     new Telefono() { Id = Guid.NewGuid().ToString(), Numero = "3121348172"},
                     new Telefono() { Id = Guid.NewGuid().ToString(), Numero = "3121564441"},
@@ -54,6 +63,7 @@ namespace AppContactos.ViewModel
                 ApellidoPaterno = "Arellano",
                 ApellidoMaterno = "Robles",
                 Organizacion = "Facultad de Psicologia",
+                Favorito = false,
                 Telefonos = new ObservableCollection<Telefono>() {
                     new Telefono() { Id = Guid.NewGuid().ToString(), Numero = "3129827645"},
                     new Telefono() { Id = Guid.NewGuid().ToString(), Numero = "3137268921"},
@@ -66,12 +76,53 @@ namespace AppContactos.ViewModel
             cmdContactoCancelar = new Command(async () => await PCmdContactoCancelar());
             cmdContactoAgregar = new Command(async () => await PCmdContactoAgregar());
             cmdContactoGrabar = new Command<Contacto>(async (x) => await PCmdContactoGrabar(x));
+            cmdContactoAgregaTelefono = new Command(async () => await PCmdContactoAgregaTelefono());
+            cmdContactoEliminaTelefono = new Command<Telefono>(async (x) => await PCmdContactoEliminaTelefono(x));
+            cmdContactoMarcarFavorito = new Command<Contacto>(async (x) => await PCmdContactoMarcarFavorito(x));
+            cmdContactoVerFavoritos = new Command(async () => await PCmdContactoVerFavoritos());
         }
 
         public async Task PCmdContactoAgregar()
         {
             await Application.Current.MainPage.Navigation.PushAsync(new AppContactos.Views.ContactoMtto(this));
         }
+
+        public async Task PCmdContactoVerFavoritos()
+        {
+            await Application.Current.MainPage.Navigation.PushAsync(new AppContactos.Views.Favoritos(this));
+        }
+
+        public async Task PCmdContactoAgregaTelefono()
+        {
+            if(Contacto.Telefonos == null)
+            {
+                Contacto.Telefonos = new ObservableCollection<Telefono>();
+            }
+            Contacto.Telefonos.Add(new Telefono() { Id = Guid.NewGuid().ToString() });
+            await Task.Delay(500);
+        }
+
+        public async Task PCmdContactoMarcarFavorito(Contacto _contacto)
+        {
+            int indice = -1;
+            Contacto tmpContacto = Contactos.FirstOrDefault((item) => item.Id == _contacto.Id);
+            if (tmpContacto != null)
+            {
+                indice = Contactos.IndexOf(tmpContacto);
+                Contactos[indice].Favorito = !Contactos[indice].Favorito;
+                if (Contactos[indice].Favorito) icono = "FavoriteFilled.png";
+                else icono = "FavoriteOutlined.png";
+            }
+            OnPropertyChanged();
+            await Task.Delay(100);
+        }
+
+        public async Task PCmdContactoEliminaTelefono(Telefono _telefono)
+        {
+            Contacto.Telefonos.Remove(_telefono);
+            await Task.Delay(500);
+        }
+
         public async Task PCmdContactoDetalle(Contacto _contacto)
         {
             await Application.Current.MainPage.Navigation.PushAsync(new AppContactos.Views.ContactoDetalle(_contacto, this));
